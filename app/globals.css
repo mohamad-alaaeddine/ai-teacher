@@ -1,88 +1,154 @@
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
 
-/* 
-  Deutsche Kommentare gemäß den Projektanforderungen.
-  Globale Stile und Layout-Anpassungen.
-*/
+/* ============================================================
+   globals-FrontEnd.css — Stable Final Version (clean)
+   ============================================================ */
 
+/* ========== BASE ========== */
 body {
-  /* Sicherheitsregel für die Breite: Verhindert das Brechen des Layouts auf extrem schmalen Bildschirmen */
   min-width: 360px;
 }
 
-/* =========================================
-   1. الكود الأساسي الخاص بك (يبقى كما هو)
-   الوضع الافتراضي: تطبيق صلب بدون تمرير عمودي
-   ========================================= */
 html, body {
-  overflow-x: auto; 
-  overflow-y: hidden; 
+  overflow: hidden;
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* ════════════════════════════════════════════════════════
-   FORCE CUSTOM SCROLLBAR ON ALL ELEMENTS (INCLUDING ROOT)
-   ════════════════════════════════════════════════════════ */
-
-/* تم استهداف الـ html والـ body والكل لضمان التغيير */
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-::-webkit-scrollbar {
-  width: 8px !important;  /* عرض الـ Scrollbar العمودي */
-  height: 8px !important; /* ارتفاع الـ Scrollbar الأفقي */
-  display: block !important;
+body.needs-scroll {
+  overflow-y: auto;
 }
 
-html::-webkit-scrollbar-track,
-body::-webkit-scrollbar-track,
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05) !important; /* خلفية شفافة جداً */
-  border-radius: 10px !important;
+/* ========== CUSTOM SCROLLBAR ========== */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background-color: rgba(56,189,248,0.6); border-radius: 12px; }
+
+/* ========== DISPLAY HELPERS ========== */
+@media (min-width: 768px) {
+  .md-show { display: flex; }
+  .mobile-only { display: none; }
 }
 
-html::-webkit-scrollbar-thumb,
-body::-webkit-scrollbar-thumb,
-::-webkit-scrollbar-thumb {
-  background-color: rgba(56, 189, 248, 0.6) !important; /* اللون الأزرق السماوي */
-  border-radius: 12px !important;
-  border: 12px solid transparent !important; /* يعطي إيحاء بوجود مسافة حول الـ thumb */
-  background-clip: content-box !important;
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .md-show { display: none; }
+  .mobile-only { display: flex; }
 }
 
-html::-webkit-scrollbar-thumb:hover,
-body::-webkit-scrollbar-thumb:hover,
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(14, 165, 233) !important; /* لون أغمق عند التمرير بالماوس */
+@media (max-width: 767px) and (orientation: landscape) {
+  .md-show { display: none; }
+  .mobile-only { display: flex; }
 }
 
-/* التوافق مع متصفح Firefox */
-* {
-  scrollbar-width: thin !important;
-  scrollbar-color: rgba(56, 189, 248, 0.6) transparent !important;
+/* ========== NEEDS-SCROLL (Desktop short height) ========== */
+body.needs-scroll .hide-on-short {
+  display: none !important;
 }
 
-/* إخفاء العنوان في الشاشات القصيرة (موجود من قبل) */
-@media (max-height: 600px) {
-  .setup-title { display: none; }
+/* ========== MOBILE LANDSCAPE MODE ========== */
+body.is-landscape main {
+  padding: clamp(0.25rem, 1dvh, 0.5rem)
+           clamp(0.5rem, 2vw, 1rem) !important;
 }
 
-/* =========================================
-   2. الإضافة الجديدة (مخرج الطوارئ للديسكتوب)
-   يعمل فقط إذا كان الارتفاع أقل من 550px والمستخدم يستعمل ماوس (كمبيوتر)
-   ========================================= */
-@media (max-height: 550px) and (pointer: fine) {
-  html, body {
-    /* السماح بالتمرير العمودي العام */
-    overflow-y: auto !important; 
-  }
-  
-  body > main {
-    /* إجبار التطبيق على أن يكون له ارتفاع أدنى، لكي يظهر شريط التمرير ولا تتداخل العناصر */
-    min-height: 550px; 
-    /* تحرير التطبيق من التثبيت الصارم ليتمكن من التحرك مع شريط التمرير */
-    position: relative !important; 
-  }
+body.is-landscape .hide-on-short {
+  display: none !important;
+}
+
+body.is-landscape .setup-card {
+  border-radius: 1.25rem !important;
+  padding: clamp(0.4rem, 1.5dvh, 0.75rem)
+           clamp(0.5rem, 2vw, 1rem) !important;
+  gap: clamp(0.2rem, 0.8dvh, 0.4rem) !important;
+}
+
+/* Sprache + Modus nebeneinander */
+body.is-landscape .landscape-lang-mode-row {
+  flex-direction: row !important;
+  gap: 0.5rem !important;
+}
+body.is-landscape .landscape-lang-mode-row > div {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+/* kleinere Elemente im Setup */
+body.is-landscape .setup-card input,
+body.is-landscape .setup-card > div > button,
+body.is-landscape .setup-card > div > label {
+  height: clamp(28px, 5.5dvh, 36px) !important;
+  font-size: 0.7rem !important;
+}
+
+body.is-landscape .start-button {
+  height: clamp(32px, 6dvh, 40px) !important;
+  font-size: 0.85rem !important;
+  border-radius: 1rem !important;
+}
+
+/* Classroom: column → row */
+body.is-landscape .landscape-row { flex-direction: row !important; }
+
+body.is-landscape .landscape-header {
+  padding-top: clamp(0.2rem, 0.8dvh, 0.4rem) !important;
+  padding-bottom: clamp(0.2rem, 0.8dvh, 0.4rem) !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+body.is-landscape .landscape-chat {
+  padding: clamp(0.4rem, 1.5dvh, 0.75rem)
+           clamp(0.5rem, 2vw, 1rem) !important;
+}
+
+body.is-landscape .landscape-input {
+  padding: clamp(0.25rem, 1dvh, 0.4rem)
+           clamp(0.4rem, 1.5vw, 0.75rem) !important;
+  gap: clamp(0.2rem, 0.8dvh, 0.4rem) !important;
+}
+body.is-landscape .landscape-input input {
+  padding: 0.4rem 0.75rem !important;
+  font-size: 0.75rem !important;
+}
+body.is-landscape .landscape-input button {
+  padding: 0.4rem 0.6rem !important;
+}
+
+/* rechtes Panel sichtbar */
+body.is-landscape .landscape-show {
+  display: flex !important;
+  width: 32% !important;
+  flex-shrink: 0 !important;
+  padding: clamp(0.3rem, 1dvh, 0.5rem)
+           clamp(0.4rem, 1.5vw, 0.75rem) !important;
+  gap: clamp(0.2rem, 0.8dvh, 0.5rem) !important;
+}
+body.is-landscape .landscape-show .landscape-img-area { min-height: 0 !important; }
+body.is-landscape .landscape-show button {
+  padding: 0.35rem 0.5rem !important;
+  font-size: 0.7rem !important;
+  border-radius: 0.75rem !important;
+}
+body.is-landscape .landscape-show p { font-size: 0.65rem !important; }
+
+body.is-landscape .landscape-hide { display: none !important; }
+body.is-landscape .landscape-hide-btn { display: none !important; }
+
+/* main & wrapper lock heights */
+body.is-landscape main {
+  overflow: hidden !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+}
+body.is-landscape main > div {
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+body.is-short .hide-on-short {
+  display: none !important;
 }

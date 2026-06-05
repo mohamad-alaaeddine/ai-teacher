@@ -149,6 +149,15 @@ body.is-landscape main > div {
   overflow: hidden !important;
 }
 
-body.is-short .hide-on-short {
-  display: none !important;
+/* Desktop landscape + overflow: unlock scroll, override the lock above */
+body.is-landscape.needs-scroll main {
+  overflow-y: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100dvh !important;
+}
+body.is-landscape.needs-scroll main > div {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
 }

@@ -1,15 +1,5 @@
 "use client";
 
-/**
- * page.js — Buddy AI Language Teacher
- *
- * Frontend-Architektur:
- * - dvh-basierte clamp()-Werte → proportionales Schrumpfen bei Höhenänderung
- * - body.is-landscape (JS) + CSS-Klassen → mobiler Landscape-Modus
- * - body.needs-scroll (JS) + CSS-Klassen → Desktop Scroll-Fallback
- * - md-show / mobile-only / landscape-* → Panel-Steuerung ohne Tailwind hidden
- */
-
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -33,7 +23,7 @@ const AVAILABLE_LANGS = getAvailableLanguages();
 const LANGUAGES       = AVAILABLE_LANGS;
 const STT_LANGUAGES   = AVAILABLE_LANGS.map(l => ({ code: l.sttCode, label: l.label }));
 
-// ─── System-Prompt Builder ────────────────────────────────────────────────────
+// ── System Prompt Builder ─────────────────────────────────────────────────────
 function buildSystemBrain(targetLang, motherLang, langMode, selectedMode) {
   const targetLabel = AVAILABLE_LANGS.find(l => l.code === targetLang)?.label || "English";
   const motherLabel = AVAILABLE_LANGS.find(l => l.code === motherLang)?.label || "Arabic";
@@ -96,7 +86,7 @@ ADD [VOCAB:...] when you notice ANY of these:
   return `${BASE}\n\n${MODE}`;
 }
 
-// ─── Roboter-SVG ──────────────────────────────────────────────────────────────
+// ── Robot SVG ─────────────────────────────────────────────────────────────────
 function RobotSVG({ size = 64, className = "" }) {
   return (
     <svg className={className} width={size} height={size} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -123,12 +113,12 @@ function RobotSVG({ size = 64, className = "" }) {
   );
 }
 
-// ─── Haupt-Komponente ─────────────────────────────────────────────────────────
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function Home() {
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [step,                   setStep]                   = useState("setup");
-  const [isTrueDesktop,          setIsTrueDesktop]          = useState(false); 
+  const [isTrueDesktop,          setIsTrueDesktop]          = useState(false);
   const [apiKey,                 setApiKey]                 = useState("");
   const [referenceFiles,         setReferenceFiles]         = useState([]);
   const [isAnalyzing,            setIsAnalyzing]            = useState(false);
@@ -167,59 +157,46 @@ export default function Home() {
   const [needsScrollState,       setNeedsScrollState]       = useState(false);
 
   // ── Refs ───────────────────────────────────────────────────────────────────
-  const imageInputRef          = useRef(null);
-  const sttRef                 = useRef(null);
-  const liveClientRef          = useRef(null);
-  const playbackContextRef     = useRef(null);
-  const nextStartTimeRef       = useRef(0);
-  const chatEndRef             = useRef(null);
-  const teacherBufferRef       = useRef("");
-  const studentBufferRef       = useRef("");
+  const imageInputRef            = useRef(null);
+  const sttRef                   = useRef(null);
+  const liveClientRef            = useRef(null);
+  const playbackContextRef       = useRef(null);
+  const nextStartTimeRef         = useRef(0);
+  const chatEndRef               = useRef(null);
+  const teacherBufferRef         = useRef("");
+  const studentBufferRef         = useRef("");
   const studentVoiceMsgActiveRef = useRef(false);
-  const audioContextRef        = useRef(null);
-  const mediaStreamRef         = useRef(null);
-  const processorRef           = useRef(null);
-  const messageCountRef        = useRef(0);
-  const reconnectCalledRef     = useRef(false);
-  const chatHistoryRef         = useRef([]);
-  const sessionStartTimeRef    = useRef(null);
-  const sentMessagesCountRef   = useRef(0);
-  const lastPromptTokensRef    = useRef(0);
-  const lastThoughtsTokensRef  = useRef(0);
-  const lastTotalTokensRef     = useRef(0);
-  const reconnectCountRef      = useRef(0);
-  const thoughtCountRef        = useRef(0);
-  const thoughtTotalCharsRef   = useRef(0);
-  const currentTurnThoughtsRef = useRef([]);
-  const enrichedSystemRef      = useRef("");
-  const selectedImageRef       = useRef(null);
-  const flashcardsRef          = useRef([]);
+  const audioContextRef          = useRef(null);
+  const mediaStreamRef           = useRef(null);
+  const processorRef             = useRef(null);
+  const messageCountRef          = useRef(0);
+  const reconnectCalledRef       = useRef(false);
+  const chatHistoryRef           = useRef([]);
+  const sessionStartTimeRef      = useRef(null);
+  const sentMessagesCountRef     = useRef(0);
+  const lastPromptTokensRef      = useRef(0);
+  const lastThoughtsTokensRef    = useRef(0);
+  const lastTotalTokensRef       = useRef(0);
+  const reconnectCountRef        = useRef(0);
+  const thoughtCountRef          = useRef(0);
+  const thoughtTotalCharsRef     = useRef(0);
+  const currentTurnThoughtsRef   = useRef([]);
+  const enrichedSystemRef        = useRef("");
+  const selectedImageRef         = useRef(null);
+  const flashcardsRef            = useRef([]);
 
   const tr = getTrans(targetLang);
-  // ── Phase 1: Geräteerkennung via User-Agent ──────────────────────────
-//  const isTrueDesktop = !/mobile|android|iphone|ipad|ipod/i.test(navigator.userAgent);
-/*  const isTrueDesktop =
-  typeof window !== "undefined" &&
-  !/mobile|android|iphone|ipad|ipod/i.test(
-    navigator.userAgent.toLowerCase()
-  );*/
-    useEffect(() => {
-    const checkDevice = () => {
-      try {
-        const check = !/mobile|android|iphone|ipad|ipod/i.test(
-          navigator.userAgent.toLowerCase()
-        );
-        setIsTrueDesktop(check);
-      } catch {
-        setIsTrueDesktop(false);
-      }
-    };
-    checkDevice();
+
+  // ── Device detection ───────────────────────────────────────────────────────
+  useEffect(() => {
+    try {
+      setIsTrueDesktop(!/mobile|android|iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase()));
+    } catch {
+      setIsTrueDesktop(false);
+    }
   }, []);
 
-  // ── useEffects ─────────────────────────────────────────────────────────────
-
-  // LocalStorage: gespeicherte Einstellungen laden
+  // ── Load saved settings ────────────────────────────────────────────────────
   useEffect(() => {
     try {
       const savedTarget  = localStorage.getItem("targetLang");
@@ -238,71 +215,81 @@ export default function Home() {
     } catch (e) { console.error("❌ [LOCALSTORAGE READ]", e); }
   }, []);
 
-  // Dark Mode: HTML-Klasse + localStorage synchronisieren
+  // ── Dark mode sync ─────────────────────────────────────────────────────────
   useEffect(() => {
     try {
       localStorage.setItem("darkMode", isDarkMode);
-      if (isDarkMode) document.documentElement.classList.add("dark");
-      else            document.documentElement.classList.remove("dark");
+      document.documentElement.classList.toggle("dark", isDarkMode);
     } catch (e) {}
   }, [isDarkMode]);
 
-  // STT-Sprache: automatisch anpassen wenn Zielsprache geändert wird
+  // ── STT language auto-sync ─────────────────────────────────────────────────
   useEffect(() => {
     const lang = AVAILABLE_LANGS.find(l => l.code === targetLang);
     setSttLanguage(lang?.sttCode || "en-US");
   }, [targetLang]);
 
-  // Chat: automatisch nach unten scrollen
+  // ── Chat auto-scroll ───────────────────────────────────────────────────────
   useEffect(() => {
     try { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); } catch (_) {}
   }, [messages]);
 
-  // Layout Detection: body.is-landscape und body.needs-scroll setzen
-  // is-landscape  → h < 500px UND w < 768px (echter mobiler Landscape)
-  // needs-scroll  → Desktop mit komprimierter Höhe
+  // ── Layout detection: is-landscape + needs-scroll ──────────────────────────
   useEffect(() => {
-    const update = () => {
-      // requestAnimationFrame: يضمن إنو القياس يصير بعد ما الـ browser يرسم الـ layout
-      requestAnimationFrame(() => {
+    let debounceTimer = null;
+
+    const applyLayout = () => {
       const h = window.innerHeight;
       const w = window.innerWidth;
-
-      // ── Phase 2: Landscape-Modus erkennen ───────────────────────────────
       const isLandscape = w > h && h < 550;
 
-      // ── Phase 3: Collision Detection (nur Desktop) ───────────────────────
-      let isOverflowing = false;
-      if (isTrueDesktop && isLandscape) {
-        const mainEl = document.querySelector("main");
-        const cardEl =
-          document.querySelector(".setup-card") ||
-          document.querySelector(".landscape-input");
-        if (mainEl && cardEl) {
-          isOverflowing = cardEl.scrollHeight > mainEl.clientHeight;
-          console.log("🔍 card.scrollHeight:", cardEl.scrollHeight, "main.clientHeight:", mainEl.clientHeight, "overflow:", isOverflowing);
+      // Reset needs-scroll before measuring so card returns to natural height
+      document.body.classList.remove("needs-scroll");
+      const mainEl = document.querySelector("main");
+      if (mainEl) {
+        mainEl.style.overflowY = "";
+        mainEl.style.height    = "";
+        mainEl.style.maxHeight = "";
+        mainEl.style.minHeight = "";
+      }
+
+      let needsScroll = false;
+      if (isTrueDesktop) {
+        const btnEl   = document.querySelector(".start-button");
+        const mainEl2 = document.querySelector("main");
+        if (btnEl && mainEl2) {
+          needsScroll = btnEl.getBoundingClientRect().bottom > mainEl2.getBoundingClientRect().bottom + 4;
         }
       }
-      console.log("📐 h:", h, "w:", w, "isLandscape:", isLandscape, "isTrueDesktop:", isTrueDesktop, "needsScroll:", isTrueDesktop && isLandscape && isOverflowing);
-
-      // ── Phase 4: Entscheidung ─────────────────────────────────────────────
-      const needsScroll = isTrueDesktop && isLandscape && isOverflowing;
 
       document.body.classList.toggle("is-landscape", isLandscape);
       document.body.classList.toggle("needs-scroll",  needsScroll);
       setNeedsScrollState(needsScroll);
-      }); // end requestAnimationFrame
+
+      if (mainEl && isTrueDesktop && isLandscape && needsScroll) {
+        mainEl.style.overflowY = "auto";
+        mainEl.style.height    = "auto";
+        mainEl.style.maxHeight = "none";
+        mainEl.style.minHeight = "100dvh";
+      }
     };
-    update();
+
+    const update = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => requestAnimationFrame(applyLayout), 80);
+    };
+
+    requestAnimationFrame(applyLayout);
     window.addEventListener("resize",            update);
     window.addEventListener("orientationchange", update);
     return () => {
+      clearTimeout(debounceTimer);
       window.removeEventListener("resize",            update);
       window.removeEventListener("orientationchange", update);
     };
-  }, []);
+  }, [isTrueDesktop]);
 
-  // Cleanup: Mic + STT + Live-Session beim Unmount stoppen
+  // ── Cleanup on unmount ─────────────────────────────────────────────────────
   useEffect(() => {
     return () => {
       try {
@@ -313,7 +300,7 @@ export default function Home() {
     };
   }, []);
 
-  // Mobile-Erkennung für isMobile-State
+  // ── Mobile detection for menus ─────────────────────────────────────────────
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -321,7 +308,7 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Firebase Auth + Firestore Flashcards Listener
+  // ── Firebase Auth + Flashcards sync ───────────────────────────────────────
   useEffect(() => {
     let flashcardsUnsubscribe = null;
     const authUnsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -343,7 +330,7 @@ export default function Home() {
     return () => { authUnsubscribe(); if (flashcardsUnsubscribe) flashcardsUnsubscribe(); };
   }, []);
 
-  // ── Hilfsfunktionen ────────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────────────────
 
   const logToDisk = useCallback(async (jsonData, clear = false) => {
     try {
@@ -398,7 +385,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     `.trim();
   }
 
-  // ── Audio ──────────────────────────────────────────────────────────────────
+  // ── Audio output ───────────────────────────────────────────────────────────
 
   async function playRawAudio(pcmData) {
     try {
@@ -421,7 +408,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [AUDIO PLAY]", e); }
   }
 
-  // ── Gemini Message Processing ──────────────────────────────────────────────
+  // ── Gemini response processing ─────────────────────────────────────────────
 
   function processJson(json) {
     try {
@@ -526,8 +513,8 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
       reconnectCalledRef.current = true;
       reconnectCountRef.current++;
       logToDisk({ event: "PAGE_RECONNECT", sessionDuration: getSessionDuration(), reconnectNumber: reconnectCountRef.current });
-      const recentHistory  = chatHistoryRef.current.filter(m => m.text && !m.text.includes("🔄")).slice(-15);
-      const chatSummary    = recentHistory.map(m => `${m.role === "teacher" ? "Teacher" : "Student"}: ${m.text}`).join("\n");
+      const textMessages = chatHistoryRef.current.filter(m => m.text && !m.text.includes("🔄")).slice(-15);
+      const chatSummary  = textMessages.map(m => `${m.role === "teacher" ? "Teacher" : "Student"}: ${m.text}`).join("\n");
       const systemWithHist = enrichedSystemRef.current
         ? `${enrichedSystemRef.current}\n\n## Previous Conversation:\n${chatSummary}`
         : enrichedSystemRef.current;
@@ -574,7 +561,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [STT]", e); }
   }
 
-  // ── Live Mic ───────────────────────────────────────────────────────────────
+  // ── Live mic ───────────────────────────────────────────────────────────────
 
   async function stopLiveMicInternal() {
     try {
@@ -623,7 +610,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
   }
   async function toggleLive() { if (isLive) { await stopLiveMic(); return; } await startLiveMic(); }
 
-  // ── File Handling ──────────────────────────────────────────────────────────
+  // ── File handling ──────────────────────────────────────────────────────────
 
   const handleUploadFile = async (fileObj) => {
     setReferenceFiles(prev => prev.map(f => f.id === fileObj.id ? { ...f, status: "uploading" } : f));
@@ -664,7 +651,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     }
   };
 
-  // ── Session Start ──────────────────────────────────────────────────────────
+  // ── Session start ──────────────────────────────────────────────────────────
 
   const handleStartNoFiles = async () => {
     try {
@@ -700,9 +687,8 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
           setIsAnalyzing(false);
           return;
         }
-        const extractedContent = result.content;
-        const baseSystem       = buildSystemBrain(targetLang, motherLang, langMode, selectedMode);
-        const enrichedSystem   = `${baseSystem}\n\n## Teaching Materials (Full OCR):\n${JSON.stringify(extractedContent, null, 2)}`;
+        const baseSystem     = buildSystemBrain(targetLang, motherLang, langMode, selectedMode);
+        const enrichedSystem = `${baseSystem}\n\n## Teaching Materials (Full OCR):\n${JSON.stringify(result.content, null, 2)}`;
         enrichedSystemRef.current = enrichedSystem;
         const session = createGeminiLiveSession({ apiKey, systemText: enrichedSystem });
         session.setOnMessage(handleIncomingData);
@@ -722,7 +708,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     }
   };
 
-  // ── Session Actions ────────────────────────────────────────────────────────
+  // ── Session actions ────────────────────────────────────────────────────────
 
   const handleSend = () => {
     try {
@@ -761,6 +747,13 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
       liveClientRef.current.sendImage({ base64: selectedImage.base64, mimeType: selectedImage.mimeType });
       selectedImageRef.current = { base64: selectedImage.base64, mimeType: selectedImage.mimeType, name: selectedImage.name };
     } catch (e) { console.error("❌ [IMAGE SEND]", e); }
+  };
+
+  const clearImage = (e) => {
+    if (e) e.stopPropagation();
+    setSelectedImage(null);
+    setImageReady(false);
+    if (imageInputRef.current) imageInputRef.current.value = "";
   };
 
   const handleBack = async () => {
@@ -857,7 +850,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     }
   };
 
-  // ── Derived State ──────────────────────────────────────────────────────────
+  // ── Derived state ──────────────────────────────────────────────────────────
 
   const filteredSttLangs = STT_LANGUAGES.filter(l => l.code.startsWith(targetLang) || l.code.startsWith(motherLang));
 
@@ -872,56 +865,90 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
 
   const smartButton      = getSmartButtonState();
   const isButtonDisabled = referenceFiles.some(f => f.status === "uploading") || isAnalyzing || smartButton.disabled;
-  const dk               = isDarkMode; // Kurzform für Klassen-Bedingungen
+  const dk               = isDarkMode;
 
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ── Shared image panel (used in both desktop sidebar + mobile bottom panel) ─
+  const ImagePanel = ({ compact = false }) => (
+    <>
+      <div
+        onClick={() => imageInputRef.current?.click()}
+        className={`${compact ? "h-[120px]" : "landscape-img-area flex-1"} rounded-[1.5rem] border-2 border-dashed flex items-center justify-center overflow-hidden transition-all cursor-pointer ${
+          dk ? "border-sky-700 bg-sky-900/20 hover:border-sky-500 hover:bg-sky-900/30"
+             : "border-sky-300 bg-sky-50 hover:border-sky-400 hover:bg-sky-100"}`}>
+        {selectedImage ? (
+          <div className="relative w-full h-full">
+            <img src={selectedImage.previewUrl} alt="preview" className="w-full h-full object-contain" />
+            <button onClick={clearImage} className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md text-red-400 hover:text-red-600 cursor-pointer">
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <div className={`text-center ${dk ? "text-sky-400" : "text-sky-500"}`}>
+            <ImagePlus size={compact ? 24 : 32} className="mx-auto mb-2" />
+            <p className={`font-medium ${compact ? "text-xs" : "text-xs lg:text-sm"}`}>Click to Select{compact ? "" : " Image"}</p>
+          </div>
+        )}
+      </div>
+      <button onClick={handleImageSend} disabled={!imageReady || isReconnecting}
+        className={`w-full flex items-center justify-center gap-2 p-3 ${compact ? "" : "md:p-4"} rounded-2xl font-bold text-sm ${compact ? "" : "lg:text-base"} transition-all cursor-pointer disabled:opacity-50 ${
+          imageReady ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm"
+                     : dk ? "bg-zinc-700 text-zinc-500 cursor-not-allowed" : "bg-zinc-100 text-zinc-300 cursor-not-allowed"}`}>
+        <Send size={18} /> {tr("classroom", "sendImageBtn")}
+      </button>
+    </>
+  );
+
+  // ────────────────────────────────────────────────────────────────────────────
   return (
-      <main
-        className={`fixed inset-0 flex flex-col w-full
-          ${needsScrollState ? 'items-center justify-start' : 'items-center justify-center'}
-          transition-colors duration-300
-          overflow-hidden overscroll-none
-          ${dk ? "bg-zinc-900" : "bg-[#f8fafc]"}
-          p-[clamp(0.75rem,2dvh,2rem)] sm:p-[clamp(1rem,2.5dvh,2.5rem)] lg:p-[clamp(1.5rem,3dvh,3rem)]`}
-      >
-      {/* Dark-Mode-Toggle */}
+    <main
+      className={`flex flex-col w-full
+        ${needsScrollState
+          ? "min-h-screen items-center justify-start overflow-y-auto overscroll-y-contain"
+          : "fixed inset-0 items-center justify-center overflow-hidden overscroll-none"}
+        transition-colors duration-300
+        ${dk ? "bg-zinc-900" : "bg-[#f8fafc]"}
+        p-[clamp(0.5rem,1.5dvh,1.5rem)]`}
+    >
+
+      {/* Dark mode toggle */}
       <button
         onClick={() => setIsDarkMode(prev => !prev)}
         className={`fixed top-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 cursor-pointer hover:scale-110 border ${
-          dk ? "bg-zinc-800 border-zinc-700 text-yellow-400" : "bg-white border-zinc-200 text-zinc-600"
-        }`}
-      >
+          dk ? "bg-zinc-800 border-zinc-700 text-yellow-400" : "bg-white border-zinc-200 text-zinc-600"}`}>
         {dk ? "☀️" : "🌙"}
       </button>
 
       <AnimatePresence mode="wait">
         {step === "setup" ? (
+
+          /* ════════════════════════════════════════════════════════════════════
+             SETUP SCREEN
+             ════════════════════════════════════════════════════════════════ */
           <motion.div
             key="setup"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="flex flex-col items-stretch w-full max-w-md max-h-full min-h-0"
+            className={`flex flex-col items-stretch w-full max-w-md min-h-0 ${needsScrollState ? "h-auto" : "h-full"}`}
           >
-            {/* Header: Roboter & Titel */}
-            <div className="flex flex-col items-center shrink-0 mb-[clamp(0.5rem,2dvh,1.5rem)] hide-on-short">
-              <div className="w-[clamp(60px,10dvh,88px)] h-[clamp(60px,10dvh,88px)] transition-all duration-300">
+            {/* Robot header */}
+            <div className="flex flex-col items-center shrink-0 mb-[clamp(0.4rem,1.5dvh,1rem)] hide-on-short">
+              <div className="w-[clamp(55px,9dvh,80px)] h-[clamp(55px,9dvh,80px)] transition-all duration-300">
                 <RobotSVG size="100%" />
               </div>
-              <h1 className={`setup-title text-[clamp(1.5rem,4dvh,2.25rem)] font-black leading-none tracking-tighter text-center transition-colors px-2
-                ${dk ? "text-white" : "text-zinc-900"}`}>
+              <h1 className={`setup-title text-[clamp(1.4rem,3.8dvh,2.1rem)] font-black leading-none tracking-tighter text-center transition-colors px-2 ${dk ? "text-white" : "text-zinc-900"}`}>
                 {tr("setup", "title")}
               </h1>
             </div>
 
-            {/* Haupt-Setup-Karte */}
-            <div className={`setup-card w-full flex flex-col flex-1 min-h-0 overflow-y-auto overflow-x-hidden rounded-[2.5rem]
-              p-[clamp(1rem,3dvh,2rem)] gap-[clamp(0.5rem,1.5dvh,1rem)]
+            {/* Setup card */}
+            <div className={`setup-card w-full flex flex-col flex-1 min-h-0 ${needsScrollState ? "overflow-visible" : "overflow-hidden"} rounded-[2.5rem]
+              p-[clamp(0.85rem,2.2dvh,1.5rem)] gap-[clamp(0.4rem,1.2dvh,0.75rem)]
               shadow-2xl border transition-all duration-300
               ${dk ? "bg-zinc-800 border-zinc-700" : "bg-white border-white"}`}>
 
-              {/* Auth/Signin Bar */}
-              <div className={`w-full flex items-center justify-between rounded-2xl border transition-all shrink-0 px-4 h-[clamp(40px,6dvh,52px)] ${
+              {/* Auth bar */}
+              <div className={`w-full flex items-center justify-between rounded-2xl border transition-all px-4 h-[clamp(36px,5.5dvh,48px)] ${
                 dk ? "border-zinc-700 bg-zinc-900/50" : "border-zinc-200 bg-zinc-50"}`}>
                 {user ? (
                   <div className="flex items-center justify-between w-full min-w-0">
@@ -939,18 +966,18 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                 )}
               </div>
 
-              {/* API-Key-Eingabe */}
-              <div className="flex flex-col gap-1 shrink-0">
+              {/* API key */}
+              <div className="flex flex-col gap-1">
                 <input
                   type="password"
                   value={apiKey}
                   onChange={e => { setApiKey(e.target.value); sessionStorage.setItem("buddyApiKey", e.target.value); }}
                   placeholder={tr("setup", "apiKeyPlaceholder")}
                   disabled={referenceFiles.length > 0}
-                  className={`w-full rounded-2xl border px-4 outline-none text-sm transition-all h-[clamp(40px,6dvh,52px)] ${
+                  className={`w-full rounded-2xl border px-4 outline-none text-sm transition-all h-[clamp(36px,5.5dvh,48px)] ${
                     referenceFiles.length > 0
-                      ? (dk ? "border-zinc-700 bg-zinc-800 text-zinc-500 cursor-not-allowed" : "border-zinc-100 bg-zinc-50 text-zinc-400 cursor-not-allowed")
-                      : (dk ? "border-zinc-600 bg-zinc-700 text-white focus:border-sky-400" : "border-zinc-100 bg-white text-zinc-800 focus:border-sky-400")
+                      ? dk ? "border-zinc-700 bg-zinc-800 text-zinc-500 cursor-not-allowed" : "border-zinc-100 bg-zinc-50 text-zinc-400 cursor-not-allowed"
+                      : dk ? "border-zinc-600 bg-zinc-700 text-white focus:border-sky-400"  : "border-zinc-100 bg-white text-zinc-800 focus:border-sky-400"
                   }`}
                 />
                 <p className={`text-[10px] truncate leading-none px-2 ${dk ? "text-zinc-500" : "text-zinc-400"}`}>
@@ -958,12 +985,12 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                 </p>
               </div>
 
-              {/* Sprach- + Modus-Buttons — landscape-lang-mode-row: nebeneinander im Landscape */}
-              <div className="landscape-lang-mode-row shrink-0 flex flex-col gap-[clamp(0.5rem,1.5dvh,1rem)]">
+              {/* Language + Mode buttons */}
+              <div className="landscape-lang-mode-row flex flex-col gap-[clamp(0.4rem,1.2dvh,0.75rem)]">
                 <div>
                   <button
                     onClick={() => { setTmpTarget(targetLang); setTmpMother(motherLang); setTmpMode(langMode); setShowLangModal(true); }}
-                    className={`w-full flex items-center justify-between rounded-2xl border-2 px-4 hover:border-sky-300 transition-all cursor-pointer text-sm font-medium group h-[clamp(40px,6dvh,52px)] ${
+                    className={`w-full flex items-center justify-between rounded-2xl border-2 px-4 hover:border-sky-300 transition-all cursor-pointer text-sm font-medium group h-[clamp(36px,5.5dvh,48px)] ${
                       dk ? "border-zinc-600 text-zinc-300 hover:bg-sky-900/30 hover:border-sky-500" : "border-zinc-100 text-zinc-600 hover:bg-sky-50 hover:border-sky-300"}`}>
                     <span className="flex items-center gap-2"><span className="text-base">🌐</span><span className="font-bold truncate max-w-[80px] sm:max-w-none">{tr("setup", "langSettingsBtn")}</span></span>
                     <span className={`text-[10px] font-normal truncate ml-2 text-right ${dk ? "text-zinc-400 group-hover:text-sky-300" : "text-zinc-400 group-hover:text-sky-600"}`}>
@@ -974,7 +1001,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                 <div>
                   <button
                     onClick={() => setShowModeModal(true)}
-                    className={`w-full flex items-center justify-between rounded-2xl border-2 px-4 hover:border-sky-300 transition-all cursor-pointer text-sm font-medium group h-[clamp(40px,6dvh,52px)] ${
+                    className={`w-full flex items-center justify-between rounded-2xl border-2 px-4 hover:border-sky-300 transition-all cursor-pointer text-sm font-medium group h-[clamp(36px,5.5dvh,48px)] ${
                       dk ? "border-zinc-600 text-zinc-300 hover:bg-sky-900/30 hover:border-sky-500" : "border-zinc-100 text-zinc-600 hover:bg-sky-50 hover:border-sky-300"}`}>
                     <span className="flex items-center gap-2"><span className="text-base">🎯</span><span className="font-bold truncate">{tr("modes", "modeBtn")}</span></span>
                     <span className={`text-[10px] font-normal truncate ml-2 text-right ${dk ? "text-zinc-400 group-hover:text-sky-300" : "text-zinc-400 group-hover:text-sky-600"}`}>
@@ -987,12 +1014,12 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                 </div>
               </div>
 
-              {/* Datei-Upload */}
-              <div className="space-y-1.5 shrink-0">
+              {/* File upload */}
+              <div className="space-y-1.5">
                 <label className={`font-bold flex items-center gap-2 text-sm pl-1 mb-0.5 ${dk ? "text-zinc-300" : "text-zinc-700"}`}>
                   <Book size={14} className="text-emerald-500" /> {tr("setup", "filesLabel")}
                 </label>
-                <label className={`relative flex items-center justify-center gap-3 rounded-2xl border-2 border-dashed cursor-pointer transition-all h-[clamp(40px,6dvh,52px)] ${
+                <label className={`relative flex items-center justify-center gap-3 rounded-2xl border-2 border-dashed cursor-pointer transition-all h-[clamp(36px,5.5dvh,48px)] ${
                   dk ? "bg-sky-900/10 border-sky-700/50 hover:bg-sky-900/20" : "bg-sky-50/30 border-sky-200 hover:bg-sky-50"}`}>
                   <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.txt" className="hidden" onChange={handleFileChange} />
                   <Upload className="text-sky-400" size={16} />
@@ -1000,44 +1027,50 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                 </label>
               </div>
 
-              {/* Dateiliste */}
-              {/*<div className="flex-1 min-h-[100px] overflow-y-auto file-list-scrollbar pr-1.5 -mr-1.5">*/}
-              {/*<div className="flex-1 min-h-0 overflow-y-auto file-list-scrollbar pr-1.5 -mr-1.5">*/}
-
-<div
-  className={`overflow-y-auto file-list-scrollbar pr-1.5 -mr-1.5 ${
-    isTrueDesktop
-      ? "flex-1 min-h-[72px] max-h-[clamp(72px,15dvh,200px)]"
-      : "min-h-0"
-  }`}
->
-                <div className="space-y-1.5">
-                  {referenceFiles.map(f => (
-                    <div key={f.id} className={`file-item flex items-center justify-between h-8 px-3 rounded-xl border text-xs leading-none font-medium transition-colors ${
-                      dk ? "bg-zinc-700/50 border-zinc-600 text-zinc-300" : "bg-zinc-50 border-zinc-100 text-zinc-700"}`}>
-                      <span className="truncate max-w-[65%]">{f.name}</span>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {f.status === "uploading" && <Loader2 size={12} className="animate-spin text-sky-500" />}
-                        {f.status === "success"   && <CheckCircle2 size={12} className="text-emerald-500" />}
-                        {f.status === "error" && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-red-400 font-bold text-[9px]">Error</span>
-                            <button onClick={() => handleRetryUpload(f.id)} className="text-sky-500 hover:text-sky-700">⟳</button>
-                          </div>
-                        )}
-                        <button onClick={() => handleRemoveFile(f.id)} className="text-zinc-400 hover:text-red-500 cursor-pointer">✕</button>
+              {/* File list */}
+              <div
+                className={`overflow-y-auto file-list-scrollbar pr-1.5 -mr-1.5 flex-1 ${
+                  isTrueDesktop
+                    ? "min-h-[76px] max-h-[clamp(76px,24dvh,300px)]"
+                    : needsScrollState ? "min-h-[76px]" : "min-h-0"
+                }`}
+              >
+                {referenceFiles.length === 0 ? (
+                  <div className={`h-full min-h-[30px] md:min-h-[64px] flex items-center justify-center border border-dashed rounded-xl transition-colors ${
+                    dk ? "border-zinc-700 text-zinc-600" : "border-zinc-200 text-zinc-400"}`}>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">
+                      {targetLang === "ar" ? "قائمة الملفات فارغة" : "DATEIEN (PDF, BILD, TEXT) EMPTY"}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {referenceFiles.map(f => (
+                      <div key={f.id} className={`file-item flex items-center justify-between h-8 px-3 rounded-xl border text-xs leading-none font-medium transition-colors ${
+                        dk ? "bg-zinc-700/50 border-zinc-600 text-zinc-300" : "bg-zinc-50 border-zinc-100 text-zinc-700"}`}>
+                        <span className="truncate max-w-[65%]">{f.name}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {f.status === "uploading" && <Loader2 size={12} className="animate-spin text-sky-500" />}
+                          {f.status === "success"   && <CheckCircle2 size={12} className="text-emerald-500" />}
+                          {f.status === "error" && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-red-400 font-bold text-[9px]">Error</span>
+                              <button onClick={() => handleRetryUpload(f.id)} className="text-sky-500 hover:text-sky-700">⟳</button>
+                            </div>
+                          )}
+                          <button onClick={() => handleRemoveFile(f.id)} className="text-zinc-400 hover:text-red-500 cursor-pointer">✕</button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Start-Button */}
-              <div className="shrink-0 mt-auto pt-1">
+              {/* Start button */}
+              <div className="mt-auto pt-1">
                 <button
                   onClick={handleStart}
                   disabled={isButtonDisabled}
-                  className={`start-button w-full font-black rounded-[1.8rem] shadow-xl transition-all flex items-center justify-center gap-3 text-lg active:scale-95 hover:scale-[1.02] h-[clamp(50px,8dvh,64px)] ${
+                  className={`start-button w-full font-black rounded-[1.8rem] shadow-xl transition-all flex items-center justify-center gap-3 text-lg active:scale-95 hover:scale-[1.02] h-[clamp(44px,7.5dvh,56px)] ${
                     isButtonDisabled ? "bg-zinc-400 text-zinc-100 cursor-not-allowed opacity-70" : "bg-sky-500 hover:bg-sky-600 text-white"}`}>
                   {isAnalyzing
                     ? <><Loader2 size={20} className="animate-spin" /> {tr("setup", "analyzingBtn")}</>
@@ -1050,9 +1083,9 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
 
         ) : (
 
-          /* ══════════════════════════════════════════════════════════════════════
+          /* ════════════════════════════════════════════════════════════════════
              CLASSROOM SCREEN
-             ══════════════════════════════════════════════════════════════════ */
+             ════════════════════════════════════════════════════════════════ */
           <motion.div
             key="classroom"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -1068,7 +1101,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
               <span className={`text-xs lg:text-sm font-medium ${dk ? "text-zinc-500" : "text-zinc-300"}`}>TOKENS: {totalTokens.toLocaleString()}</span>
             </div>
 
-            {/* Reconnecting Banner */}
+            {/* Reconnecting banner */}
             <AnimatePresence>
               {isReconnecting && (
                 <motion.div
@@ -1080,13 +1113,13 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
               )}
             </AnimatePresence>
 
-            {/* landscape-row: column → row im Landscape/Desktop */}
+            {/* Main layout: chat + sidebar */}
             <div className="landscape-row flex flex-col md:flex-row flex-1 overflow-hidden">
 
-              {/* ── Linke Seite: Chat + Input ───────────────────────────────── */}
+              {/* Left: Chat + Input */}
               <div className={`flex flex-col flex-1 overflow-hidden border-r transition-colors ${dk ? "border-zinc-700" : "border-zinc-100"}`}>
 
-                {/* Chat-Bereich */}
+                {/* Chat */}
                 <div className={`landscape-chat flex-1 overflow-y-auto overscroll-y-contain p-6 lg:p-8 space-y-4 lg:space-y-5 transition-colors ${
                   dk ? "bg-zinc-900/50 text-zinc-100" : "bg-zinc-50/50 text-zinc-800"}`}>
                   {messages.map((m, i) => (
@@ -1112,11 +1145,11 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                   <div ref={chatEndRef} />
                 </div>
 
-                {/* Input-Bereich */}
+                {/* Input area */}
                 <div className={`landscape-input relative px-2 pb-2 pt-4 sm:px-4 sm:pb-4 sm:pt-4 border-t flex flex-col gap-2 transition-colors ${
                   dk ? "bg-zinc-800 border-zinc-700" : "bg-white border-zinc-100"}`}>
 
-                  {/* Wave Animation */}
+                  {/* Voice activity indicator */}
                   {(isLive || isTeacherSpeaking) && (
                     <div className="absolute -top-1 left-4 flex items-center gap-1.5 px-2 py-0.5 rounded-b-lg bg-zinc-700">
                       {[
@@ -1130,7 +1163,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                     </div>
                   )}
 
-                  {/* Text Input + Send */}
+                  {/* Text input + send */}
                   <div className="flex gap-2">
                     <input
                       value={inputValue} onChange={e => setInputValue(e.target.value)}
@@ -1145,7 +1178,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                     </button>
                   </div>
 
-                  {/* Voice Tools */}
+                  {/* Voice tools */}
                   <div className="grid grid-cols-2 sm:flex sm:gap-2 gap-2">
                     {/* STT */}
                     <div className={`relative flex items-center gap-1 p-1 rounded-2xl border shadow-inner transition-colors col-span-1 ${
@@ -1174,7 +1207,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                       </button>
                     </div>
 
-                    {/* Live Button */}
+                    {/* Live button */}
                     <button onClick={toggleLive} disabled={isReconnecting || isSttRecording}
                       className={`p-3 lg:p-4 text-white rounded-2xl transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 col-span-1 sm:flex-1 ${
                         isLive ? "bg-red-600 animate-pulse shadow-lg shadow-red-300" : "bg-rose-500 hover:bg-rose-600 shadow-sm"}`}>
@@ -1182,7 +1215,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                       <span className="hidden sm:inline text-sm font-bold">Live</span>
                     </button>
 
-                    {/* Mobile Menu Button */}
+                    {/* Mobile menu button */}
                     <button onClick={() => setShowMobileMenu(true)} disabled={isReconnecting}
                       className={`landscape-hide-btn p-3 rounded-2xl transition-all cursor-pointer disabled:opacity-50 sm:hidden col-span-2 flex items-center justify-center ${
                         dk ? "bg-zinc-700 text-zinc-300 hover:bg-zinc-600" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}>
@@ -1192,43 +1225,14 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                 </div>
               </div>
 
-              {/* ── Rechtes Panel: Desktop + Mobile Landscape ───────────────── */}
+              {/* Right: Desktop sidebar (+ landscape) */}
               <div className={`landscape-show md-show w-[35%] flex-col p-4 lg:p-5 gap-3 lg:gap-4 transition-colors ${
-                dk ? "bg-zinc-800 border-zinc-700" : "bg-white border-zinc-100"}`}>
+                dk ? "bg-zinc-800 border-zinc-700" : "bg-white border-white"}`}>
                 <p className={`text-xs lg:text-sm font-bold uppercase tracking-wider ${dk ? "text-zinc-500" : "text-zinc-400"}`}>
                   {tr("classroom", "imagePanelTitle")}
                 </p>
-
-                <div onClick={() => imageInputRef.current?.click()}
-                  className={`landscape-img-area flex-1 rounded-[1.5rem] border-2 border-dashed flex items-center justify-center overflow-hidden transition-all cursor-pointer ${
-                    dk ? "border-sky-700 bg-sky-900/20 hover:border-sky-500 hover:bg-sky-900/30"
-                       : "border-sky-300 bg-sky-50 hover:border-sky-400 hover:bg-sky-100"}`}>
-                  {selectedImage ? (
-                    <div className="relative w-full h-full">
-                      <img src={selectedImage.previewUrl} alt="preview" className="w-full h-full object-contain" />
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setImageReady(false); if (imageInputRef.current) imageInputRef.current.value = ""; }}
-                        className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md text-red-400 hover:text-red-600 cursor-pointer">
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className={`text-center ${dk ? "text-sky-400" : "text-sky-500"}`}>
-                      <ImagePlus size={32} className="mx-auto mb-2" />
-                      <p className="text-xs lg:text-sm font-medium">Click to Select Image</p>
-                    </div>
-                  )}
-                </div>
-
-                <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageSelect} style={{ display: 'none' }} />
-
-                <button onClick={handleImageSend} disabled={!imageReady || isReconnecting}
-                  className={`w-full flex items-center justify-center gap-2 p-3 md:p-4 rounded-2xl font-bold text-sm lg:text-base transition-all cursor-pointer disabled:opacity-50 ${
-                    imageReady ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm"
-                               : dk ? "bg-zinc-700 text-zinc-500 cursor-not-allowed" : "bg-zinc-100 text-zinc-300 cursor-not-allowed"}`}>
-                  <Send size={18} /> {tr("classroom", "sendImageBtn")}
-                </button>
-
+                <ImagePanel />
+                <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageSelect} style={{ display: "none" }} />
                 <div className={`flex flex-col gap-2 pt-2 border-t ${dk ? "border-zinc-700" : "border-zinc-100"}`}>
                   <div className="flex gap-2">
                     <button onClick={handleViewReport} disabled={isReconnecting}
@@ -1253,43 +1257,17 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                 </div>
               </div>
 
-              {/* ── Mobiles Bottom-Panel (nur Portrait) ─────────────────────── */}
+              {/* Mobile bottom panel (portrait only) */}
               <div className={`landscape-hide mobile-only w-full border-t flex flex-col p-3 gap-2 transition-colors ${
                 dk ? "bg-zinc-800 border-zinc-700" : "bg-white border-zinc-100"}`}>
-                <div onClick={() => imageInputRef.current?.click()}
-                  className={`h-[120px] rounded-[1rem] border-2 border-dashed flex items-center justify-center overflow-hidden transition-all cursor-pointer ${
-                    dk ? "border-sky-700 bg-sky-900/20 hover:border-sky-500 hover:bg-sky-900/30"
-                       : "border-sky-300 bg-sky-50 hover:border-sky-400 hover:bg-sky-100"}`}>
-                  {selectedImage ? (
-                    <div className="relative w-full h-full">
-                      <img src={selectedImage.previewUrl} alt="preview" className="w-full h-full object-contain" />
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setImageReady(false); if (imageInputRef.current) imageInputRef.current.value = ""; }}
-                        className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md text-red-400 hover:text-red-600 cursor-pointer">
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className={`text-center ${dk ? "text-sky-400" : "text-sky-500"}`}>
-                      <ImagePlus size={24} className="mx-auto mb-1" />
-                      <p className="text-xs font-medium">Click to Select</p>
-                    </div>
-                  )}
-                </div>
-                <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageSelect} style={{ display: 'none' }} />
-                <button onClick={handleImageSend} disabled={!imageReady || isReconnecting}
-                  className={`w-full flex items-center justify-center gap-2 p-3 rounded-2xl font-bold text-sm transition-all cursor-pointer disabled:opacity-50 ${
-                    imageReady ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm"
-                               : dk ? "bg-zinc-700 text-zinc-500 cursor-not-allowed" : "bg-zinc-100 text-zinc-300 cursor-not-allowed"}`}>
-                  <Send size={18} /> {tr("classroom", "sendImageBtn")}
-                </button>
+                <ImagePanel compact />
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Mobile Bottom Sheet ────────────────────────────────────────────── */}
+      {/* Mobile bottom sheet */}
       <AnimatePresence>
         {showMobileMenu && (
           <motion.div
@@ -1328,7 +1306,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
         )}
       </AnimatePresence>
 
-      {/* ── End Session Modal ──────────────────────────────────────────────── */}
+      {/* End session modal */}
       {showEndModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1351,7 +1329,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
         </div>
       )}
 
-      {/* ── Analyzing Modal ────────────────────────────────────────────────── */}
+      {/* Analyzing modal */}
       {isAnalyzing && (
         <div className="fixed inset-0 z-40 flex items-center justify-center pointer-events-none">
           <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1402,7 +1380,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
         </div>
       )}
 
-      {/* ── No Files Modal ─────────────────────────────────────────────────── */}
+      {/* No files modal */}
       {showNoFilesModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1428,7 +1406,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
         </div>
       )}
 
-      {/* ── Language Settings Modal ────────────────────────────────────────── */}
+      {/* Language settings modal */}
       {showLangModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1475,7 +1453,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
         </div>
       )}
 
-      {/* ── Mode Selection Modal ───────────────────────────────────────────── */}
+      {/* Mode selection modal */}
       {showModeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1517,7 +1495,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
         </div>
       )}
 
-      {/* ── Image Too Large Modal ──────────────────────────────────────────── */}
+      {/* Image too large modal */}
       {showImageTooLargeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1534,7 +1512,7 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
         </div>
       )}
 
-      {/* ── Flashcards Modal ───────────────────────────────────────────────── */}
+      {/* Flashcards modal */}
       {showFlashcardsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}

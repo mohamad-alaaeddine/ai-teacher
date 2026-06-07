@@ -175,6 +175,7 @@ export default function Home() {
   const [needsScrollState,       setNeedsScrollState]       = useState(false);
 
   const imageInputRef            = useRef(null);
+  const cameraInputRef           = useRef(null);
   const sttRef                   = useRef(null);
   const liveClientRef            = useRef(null);
   const playbackContextRef       = useRef(null);
@@ -1038,12 +1039,19 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
           </div>
         )}
       </div>
-      <button onClick={handleImageSend} disabled={!imageReady || isReconnecting}
-        className={`w-full flex items-center justify-center gap-2 p-3 ${compact ? "" : "md:p-4"} rounded-2xl font-bold text-sm ${compact ? "" : "lg:text-base"} transition-all cursor-pointer disabled:opacity-50 ${
-          imageReady ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm"
-                     : dk ? "bg-zinc-700 text-zinc-500 cursor-not-allowed" : "bg-zinc-100 text-zinc-300 cursor-not-allowed"}`}>
-        <Send size={18} /> {tr("classroom", "sendImageBtn")}
-      </button>
+      <div className="flex gap-2">
+        <button onClick={() => cameraInputRef.current?.click()} disabled={isReconnecting}
+          className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-2xl font-bold text-xs transition-all cursor-pointer disabled:opacity-50 ${
+            dk ? "bg-zinc-700 text-zinc-300 hover:bg-zinc-600" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}>
+          📷 {compact ? "" : "Camera"}
+        </button>
+        <button onClick={handleImageSend} disabled={!imageReady || isReconnecting}
+          className={`flex-1 flex items-center justify-center gap-2 p-3 ${compact ? "" : "md:p-4"} rounded-2xl font-bold text-sm ${compact ? "" : "lg:text-base"} transition-all cursor-pointer disabled:opacity-50 ${
+            imageReady ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm"
+                       : dk ? "bg-zinc-700 text-zinc-500 cursor-not-allowed" : "bg-zinc-100 text-zinc-300 cursor-not-allowed"}`}>
+          <Send size={18} /> {tr("classroom", "sendImageBtn")}
+        </button>
+      </div>
     </>
   );
 
@@ -1380,7 +1388,8 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
                   {tr("classroom", "imagePanelTitle")}
                 </p>
                 <ImagePanel />
-                <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageSelect} style={{ display: "none" }} />
+                <input ref={imageInputRef}  type="file" accept="image/*"                    onChange={handleImageSelect} style={{ display: "none" }} />
+                <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageSelect} style={{ display: "none" }} />
                 <div className={`flex flex-col gap-2 pt-2 border-t ${dk ? "border-zinc-700" : "border-zinc-100"}`}>
                   <div className="flex gap-2">
                     <button onClick={handleViewReport} disabled={isReconnecting}

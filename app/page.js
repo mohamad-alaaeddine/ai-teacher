@@ -23,7 +23,15 @@ const AVAILABLE_LANGS = getAvailableLanguages();
 const LANGUAGES       = AVAILABLE_LANGS;
 const STT_LANGUAGES   = AVAILABLE_LANGS.map(l => ({ code: l.sttCode, label: l.label }));
 
-// ── System Prompt Builder ─────────────────────────────────────────────────────
+/**
+ * Builds the full Gemini system prompt combining language rules,
+ * accuracy rules, vocab tracking instructions, and the selected mode prompt.
+ * @param {string} targetLang  - Language code the student is learning (e.g. "de")
+ * @param {string} motherLang  - Language code of the student's native language (e.g. "ar")
+ * @param {string} langMode    - Mix ratio: "beginner" | "balanced" | "immersion"
+ * @param {string} selectedMode - Teaching mode key (e.g. "openTutor", "vocabDrill")
+ * @returns {string} Complete system prompt string
+ */
 function buildSystemBrain(targetLang, motherLang, langMode, selectedMode) {
   const targetLabel = AVAILABLE_LANGS.find(l => l.code === targetLang)?.label || "English";
   const motherLabel = AVAILABLE_LANGS.find(l => l.code === motherLang)?.label || "Arabic";
@@ -86,7 +94,13 @@ ADD [VOCAB:...] when you notice ANY of these:
   return `${BASE}\n\n${MODE}`;
 }
 
-// ── Robot SVG ─────────────────────────────────────────────────────────────────
+/**
+ * @component RobotSVG
+ * @description Animated robot SVG used as the app mascot on the setup screen.
+ * @param {number} size       - Width and height in px (default: 64)
+ * @param {string} className  - Optional Tailwind/CSS class
+ * @returns {JSX.Element}
+ */
 function RobotSVG({ size = 64, className = "" }) {
   return (
     <svg className={className} width={size} height={size} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -113,10 +127,15 @@ function RobotSVG({ size = 64, className = "" }) {
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+/**
+ * @component Home
+ * @description Root page component. Manages the full app state and renders
+ * either the Setup screen or the Classroom screen based on `step`.
+ * No props — reads Firebase auth and localStorage on mount.
+ * @returns {JSX.Element}
+ */
 export default function Home() {
 
-  // ── State ──────────────────────────────────────────────────────────────────
   const [step,                   setStep]                   = useState("setup");
   const [isTrueDesktop,          setIsTrueDesktop]          = useState(false);
   const [apiKey,                 setApiKey]                 = useState("");
@@ -127,7 +146,6 @@ export default function Home() {
   const [isDarkMode,             setIsDarkMode]             = useState(false);
   const [showEndModal,           setShowEndModal]           = useState(false);
   const [showMobileMenu,         setShowMobileMenu]         = useState(false);
-  const [isMobile,               setIsMobile]               = useState(false);
   const [showLangModal,          setShowLangModal]          = useState(false);
   const [targetLang,             setTargetLang]             = useState("en");
   const [motherLang,             setMotherLang]             = useState("ar");
@@ -156,7 +174,6 @@ export default function Home() {
   const [editingTranslation,     setEditingTranslation]     = useState("");
   const [needsScrollState,       setNeedsScrollState]       = useState(false);
 
-  // ── Refs ───────────────────────────────────────────────────────────────────
   const imageInputRef            = useRef(null);
   const sttRef                   = useRef(null);
   const liveClientRef            = useRef(null);
@@ -187,7 +204,6 @@ export default function Home() {
 
   const tr = getTrans(targetLang);
 
-  // ── Device detection ───────────────────────────────────────────────────────
   useEffect(() => {
     try {
       setIsTrueDesktop(!/mobile|android|iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase()));
@@ -196,7 +212,6 @@ export default function Home() {
     }
   }, []);
 
-  // ── Load saved settings ────────────────────────────────────────────────────
   useEffect(() => {
     try {
       const savedTarget  = localStorage.getItem("targetLang");
@@ -215,7 +230,6 @@ export default function Home() {
     } catch (e) { console.error("❌ [LOCALSTORAGE READ]", e); }
   }, []);
 
-  // ── Dark mode sync ─────────────────────────────────────────────────────────
   useEffect(() => {
     try {
       localStorage.setItem("darkMode", isDarkMode);
@@ -223,18 +237,14 @@ export default function Home() {
     } catch (e) {}
   }, [isDarkMode]);
 
-  // ── STT language auto-sync ─────────────────────────────────────────────────
   useEffect(() => {
     const lang = AVAILABLE_LANGS.find(l => l.code === targetLang);
     setSttLanguage(lang?.sttCode || "en-US");
   }, [targetLang]);
 
-  // ── Chat auto-scroll ───────────────────────────────────────────────────────
   useEffect(() => {
     try { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); } catch (_) {}
   }, [messages]);
-
-  // ── Layout detection: is-landscape + needs-scroll ──────────────────────────
   useEffect(() => {
     let debounceTimer = null;
 
@@ -289,7 +299,6 @@ export default function Home() {
     };
   }, [isTrueDesktop]);
 
-  // ── Cleanup on unmount ─────────────────────────────────────────────────────
   useEffect(() => {
     return () => {
       try {
@@ -300,15 +309,7 @@ export default function Home() {
     };
   }, []);
 
-  // ── Mobile detection for menus ─────────────────────────────────────────────
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
-  // ── Firebase Auth + Flashcards sync ───────────────────────────────────────
   useEffect(() => {
     let flashcardsUnsubscribe = null;
     const authUnsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -330,8 +331,12 @@ export default function Home() {
     return () => { authUnsubscribe(); if (flashcardsUnsubscribe) flashcardsUnsubscribe(); };
   }, []);
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-
+  /**
+   * Sends debug data to the local /api/debug-log endpoint.
+   * Pass clear=true to wipe the log file instead of appending.
+   * @param {object|null} jsonData - Data to append, or null when clearing
+   * @param {boolean} clear        - If true, clears the log file
+   */
   const logToDisk = useCallback(async (jsonData, clear = false) => {
     try {
       await fetch("/api/debug-log", {
@@ -342,12 +347,21 @@ export default function Home() {
     } catch (_) {}
   }, []);
 
+  /**
+   * Returns elapsed session time as a human-readable string (e.g. "3m 42s").
+   * Returns "unknown" if the session has not started yet.
+   * @returns {string}
+   */
   function getSessionDuration() {
     if (!sessionStartTimeRef.current) return "unknown";
     const seconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
     return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
   }
 
+  /**
+   * Resets all mutable session refs and token counter to their initial values.
+   * Called before starting a new session or reconnecting.
+   */
   function resetRefs() {
     teacherBufferRef.current         = "";
     studentBufferRef.current         = "";
@@ -366,6 +380,11 @@ export default function Home() {
     setTotalTokens(0);
   }
 
+  /**
+   * Builds the end-of-session summary prompt sent to Gemini.
+   * The prompt instructs the model to evaluate accuracy and highlight mistakes.
+   * @returns {string} Prompt string in the target language
+   */
   function buildSummaryPrompt() {
     const targetLabel = AVAILABLE_LANGS.find(l => l.code === targetLang)?.label || "English";
     return `
@@ -385,8 +404,12 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     `.trim();
   }
 
-  // ── Audio output ───────────────────────────────────────────────────────────
-
+  /**
+   * Decodes raw 16-bit PCM audio data and queues it for gapless playback
+   * using the Web Audio API at 24 kHz (Gemini Live output sample rate).
+   * Silently drops chunks smaller than 200 bytes to avoid glitches.
+   * @param {ArrayBuffer} pcmData - Raw PCM audio bytes from Gemini
+   */
   async function playRawAudio(pcmData) {
     try {
       if (pcmData.byteLength < 200) return;
@@ -408,8 +431,12 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [AUDIO PLAY]", e); }
   }
 
-  // ── Gemini response processing ─────────────────────────────────────────────
-
+  /**
+   * Processes a parsed JSON message from the Gemini Live WebSocket.
+   * Handles: session setup confirmation, student/teacher transcription,
+   * inline audio playback, thought tracking, usage metadata, and turn completion.
+   * @param {object} json - Parsed WebSocket message from Gemini
+   */
   function processJson(json) {
     try {
       messageCountRef.current++;
@@ -494,6 +521,11 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [PROCESS JSON]", e); }
   }
 
+  /**
+   * Entry point for all raw WebSocket messages from Gemini Live.
+   * Routes ArrayBuffer messages to either JSON parsing or audio playback.
+   * @param {ArrayBuffer|object} data - Raw WebSocket message
+   */
   async function handleIncomingData(data) {
     try {
       if (!data) return;
@@ -507,6 +539,12 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [INCOMING]", e); }
   }
 
+  /**
+   * Called by the Gemini Live client when the WebSocket drops.
+   * Injects the last 15 chat messages into the system prompt so context
+   * is preserved after reconnect, then sets the reconnecting UI state.
+   * Debounced via reconnectCalledRef to prevent double-firing.
+   */
   function handleReconnect() {
     try {
       if (reconnectCalledRef.current) return;
@@ -536,13 +574,21 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [RECONNECT]", e); }
   }
 
-  // ── STT ────────────────────────────────────────────────────────────────────
-
+  /**
+   * Stops the SpeechRecognition instance and clears the ref.
+   * Safe to call even if no recognition is active.
+   */
   function stopSttInternal() {
     try { if (sttRef.current) { sttRef.current.stop(); sttRef.current = null; } } catch (_) {}
   }
+  /** Stops STT and updates recording state. */
   function stopStt() { stopSttInternal(); setIsSttRecording(false); }
 
+  /**
+   * Toggles browser Speech-to-Text on/off for text input.
+   * Uses continuous + interim results so text updates as the user speaks.
+   * Language follows `sttLanguage` state (auto-synced to targetLang).
+   */
   function toggleStt() {
     try {
       if (isSttRecording) { stopStt(); return; }
@@ -561,8 +607,10 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [STT]", e); }
   }
 
-  // ── Live mic ───────────────────────────────────────────────────────────────
-
+  /**
+   * Tears down the live mic pipeline: disconnects the ScriptProcessor,
+   * stops all media tracks, and closes the AudioContext.
+   */
   async function stopLiveMicInternal() {
     try {
       if (processorRef.current) { processorRef.current.disconnect(); processorRef.current.onaudioprocess = null; processorRef.current = null; }
@@ -570,8 +618,14 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
       if (audioContextRef.current) { await audioContextRef.current.close().catch(() => {}); audioContextRef.current = null; }
     } catch (_) {}
   }
+  /** Stops the live mic pipeline and updates live state. */
   async function stopLiveMic() { await stopLiveMicInternal(); setIsLive(false); }
 
+  /**
+   * Opens the microphone, downsamples audio from the native sample rate
+   * to 16 kHz using a ScriptProcessor, encodes it as base64 PCM,
+   * and streams it to Gemini Live in real time via liveClientRef.
+   */
   async function startLiveMic() {
     try {
       const stream  = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -608,10 +662,14 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
       setIsLive(true);
     } catch (err) { console.error("❌ [LIVE MIC]", err); toast.error("Microphone Error: " + err.message); }
   }
+  /** Toggles live microphone streaming on/off. */
   async function toggleLive() { if (isLive) { await stopLiveMic(); return; } await startLiveMic(); }
 
-  // ── File handling ──────────────────────────────────────────────────────────
-
+  /**
+   * Uploads a single file to Google AI File Manager via the uploader lib.
+   * Updates that file's status in referenceFiles: uploading → success | error.
+   * @param {{ id: string, file: File }} fileObj - File entry from referenceFiles state
+   */
   const handleUploadFile = async (fileObj) => {
     setReferenceFiles(prev => prev.map(f => f.id === fileObj.id ? { ...f, status: "uploading" } : f));
     try {
@@ -625,6 +683,11 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     }
   };
 
+  /**
+   * Handles the file input change event. Creates file entries with "idle" status,
+   * appends them to referenceFiles, and immediately triggers upload for each.
+   * @param {React.ChangeEvent<HTMLInputElement>} e
+   */
   const handleFileChange = (e) => {
     try {
       if (!apiKey) { toast.error(tr("setup", "apiKeyPlaceholder")); return; }
@@ -637,12 +700,20 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [FILE CHANGE]", e); toast.error("Error selecting file: " + e.message); }
   };
 
+  /**
+   * Removes a file entry from the list by id and resets the file input.
+   * @param {string} id - File entry id
+   */
   const handleRemoveFile = (id) => {
     setReferenceFiles(prev => prev.filter(f => f.id !== id));
     const input = document.querySelector('input[type="file"]');
     if (input) input.value = "";
   };
 
+  /**
+   * Clears the error state for a failed file and retries the upload.
+   * @param {string} fileId - File entry id to retry
+   */
   const handleRetryUpload = (fileId) => {
     const fileToRetry = referenceFiles.find(f => f.id === fileId);
     if (fileToRetry) {
@@ -651,8 +722,11 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     }
   };
 
-  // ── Session start ──────────────────────────────────────────────────────────
-
+  /**
+   * Starts a Gemini Live session without any uploaded reference files.
+   * Builds the system prompt from current language/mode settings,
+   * connects the session, and transitions to the classroom screen.
+   */
   const handleStartNoFiles = async () => {
     try {
       await logToDisk(null, true);
@@ -669,6 +743,11 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [START NO FILES]", e); toast.error("Error starting session: " + e.message); }
   };
 
+  /**
+   * Main session start handler. Validates API key and file requirements,
+   * runs OCR analysis on uploaded files if present, builds the enriched
+   * system prompt, connects Gemini Live, and transitions to the classroom.
+   */
   const handleStart = async () => {
     try {
       if (!apiKey) { toast.error(tr("setup", "apiKeyPlaceholder")); return; }
@@ -708,8 +787,10 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     }
   };
 
-  // ── Session actions ────────────────────────────────────────────────────────
-
+  /**
+   * Sends the current text input to Gemini Live and appends
+   * a student message + placeholder teacher message to the chat.
+   */
   const handleSend = () => {
     try {
       if (!inputValue.trim() || !liveClientRef.current) return;
@@ -726,6 +807,11 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [SEND]", e); }
   };
 
+  /**
+   * Handles classroom image file selection. Validates size (max 5 MB),
+   * reads the file as base64, and stores it in selectedImage state.
+   * @param {React.ChangeEvent<HTMLInputElement>} e
+   */
   const handleImageSelect = (e) => {
     try {
       const file = e.target.files?.[0];
@@ -740,6 +826,11 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [IMAGE SELECT]", e); }
   };
 
+  /**
+   * Sends the currently selected image to Gemini Live and adds
+   * a student image message to the chat. Also stores the image in
+   * selectedImageRef so it can be re-sent automatically after reconnect.
+   */
   const handleImageSend = () => {
     try {
       if (!selectedImage || !liveClientRef.current) return;
@@ -749,6 +840,11 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [IMAGE SEND]", e); }
   };
 
+  /**
+   * Clears the selected image from state and resets the file input.
+   * Stops event propagation when triggered from within the image preview.
+   * @param {React.SyntheticEvent|undefined} e
+   */
   const clearImage = (e) => {
     if (e) e.stopPropagation();
     setSelectedImage(null);
@@ -756,6 +852,10 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     if (imageInputRef.current) imageInputRef.current.value = "";
   };
 
+  /**
+   * Ends the classroom session: stops mic and STT, disconnects Gemini Live,
+   * closes the AudioContext, and resets all session UI state back to setup.
+   */
   const handleBack = async () => {
     try {
       await stopLiveMic();
@@ -771,21 +871,31 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     } catch (e) { console.error("❌ [BACK]", e); }
   };
 
+  /**
+   * Sends the session summary prompt to Gemini and adds a placeholder
+   * summary message to the chat. Closes the mobile menu if open.
+   */
   const handleViewReport = () => {
     try {
-      if (isMobile) setShowMobileMenu(false);
+      if (!isTrueDesktop) setShowMobileMenu(false);
       liveClientRef.current?.sendText(buildSummaryPrompt());
       setMessages(prev => [...prev, { role: "student", text: "📊 Generate session summary" }, { role: "teacher", text: "...", isSummary: true }]);
     } catch (e) { console.error("❌ [VIEW REPORT]", e); }
   };
 
+  /**
+   * Confirms end-session: closes the modal and calls handleBack
+   * to tear down the session and return to setup.
+   */
   const handleEndSessionConfirm = async () => {
     try { setShowEndModal(false); await handleBack(); }
     catch (e) { console.error("❌ [END SESSION CONFIRM]", e); }
   };
 
-  // ── Language & Mode ────────────────────────────────────────────────────────
-
+  /**
+   * Saves the language modal selections (target, mother, mode) to state
+   * and persists them to localStorage, then closes the modal.
+   */
   const handleSaveLang = () => {
     setTargetLang(tmpTarget); setMotherLang(tmpMother); setLangMode(tmpMode);
     try { localStorage.setItem("targetLang", tmpTarget); localStorage.setItem("motherLang", tmpMother); localStorage.setItem("langMode", tmpMode); }
@@ -793,33 +903,49 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     setShowLangModal(false);
   };
 
+  /**
+   * Sets the selected teaching mode, persists it to localStorage,
+   * and closes the mode selection modal.
+   * @param {string} modeKey - Mode identifier (e.g. "vocabDrill")
+   */
   const handleModeSelect = (modeKey) => {
     setSelectedMode(modeKey);
     try { localStorage.setItem("selectedMode", modeKey); } catch (e) {}
     setShowModeModal(false);
   };
 
-  // ── Auth ───────────────────────────────────────────────────────────────────
-
+  /**
+   * Triggers Firebase Google sign-in popup and logs the result.
+   */
   const handleGoogleLogin = async () => {
     const firebaseUser = await signInWithGoogle();
     if (firebaseUser) console.log("✅ [LOGIN] Signed in:", firebaseUser.displayName);
   };
 
+  /**
+   * Signs out the current Firebase user and clears flashcard state.
+   */
   const handleSignOut = async () => {
     await signOutUser();
     flashcardsRef.current = [];
     setFlashcards([]);
   };
 
-  // ── Flashcards ─────────────────────────────────────────────────────────────
-
+  /**
+   * Deletes a flashcard from Firestore by id.
+   * @param {string} id - Firestore document id of the flashcard
+   */
   const handleDeleteFlashcard = async (id) => {
     if (!user) return;
     const result = await deleteFlashcard(user.uid, id);
     if (!result?.success) toast.error("Failed to delete flashcard");
   };
 
+  /**
+   * Saves edited word/translation for a flashcard in Firestore
+   * and exits edit mode.
+   * @param {string} id - Firestore document id of the flashcard
+   */
   const handleUpdateFlashcard = async (id) => {
     if (!user || !editingWord.trim() || !editingTranslation.trim()) return;
     const result = await updateFlashcard(user.uid, id, editingWord.trim(), editingTranslation.trim());
@@ -828,6 +954,12 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     setEditingId(null); setEditingWord(""); setEditingTranslation("");
   };
 
+  /**
+   * Parses [VOCAB: word=translation | ...] tags from Gemini's response text
+   * and saves any new word pairs to Firestore (skips duplicates).
+   * Silently no-ops if the user is not signed in.
+   * @param {string} text - Raw teacher message text from Gemini
+   */
   const parseAndSaveVocab = async (text) => {
     if (!user) return;
     const match = text.match(/\[VOCAB:\s*([^\]]+)\]/i);
@@ -850,10 +982,14 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     }
   };
 
-  // ── Derived state ──────────────────────────────────────────────────────────
-
   const filteredSttLangs = STT_LANGUAGES.filter(l => l.code.startsWith(targetLang) || l.code.startsWith(motherLang));
 
+  /**
+   * Returns the start button label and disabled state based on the selected
+   * mode's file requirement ("none" | "recommended" | "required") and
+   * whether any files have been successfully uploaded.
+   * @returns {{ text: string, disabled: boolean }}
+   */
   const getSmartButtonState = () => {
     const requirement = MODE_FILE_REQUIREMENTS[selectedMode];
     const hasFiles    = referenceFiles.filter(f => f.status === "success").length > 0;
@@ -867,7 +1003,14 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
   const isButtonDisabled = referenceFiles.some(f => f.status === "uploading") || isAnalyzing || smartButton.disabled;
   const dk               = isDarkMode;
 
-  // ── Shared image panel (used in both desktop sidebar + mobile bottom panel) ─
+  /**
+   * @component ImagePanel
+   * @description Click-to-select image area + send button for the classroom.
+   * Shared between the desktop sidebar and the mobile bottom panel.
+   * Reads selectedImage, imageReady, isReconnecting, dk from parent scope.
+   * @param {boolean} compact - If true, uses fixed 120px height for mobile layout
+   * @returns {JSX.Element}
+   */
   const ImagePanel = ({ compact = false }) => (
     <>
       <div
@@ -898,7 +1041,6 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
     </>
   );
 
-  // ────────────────────────────────────────────────────────────────────────────
   return (
     <main
       className={`flex flex-col w-full

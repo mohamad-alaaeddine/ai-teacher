@@ -267,6 +267,8 @@ export default function Home() {
       if (isTrueDesktop) {
         const btnEl   = document.querySelector(".start-button");
         const mainEl2 = document.querySelector("main");
+        // If btnEl is null (e.g. classroom screen), keep current state — don't reset to false
+        if (!btnEl) return;
         if (btnEl && mainEl2) {
           needsScroll = btnEl.getBoundingClientRect().bottom > mainEl2.getBoundingClientRect().bottom + 4;
         }
@@ -286,7 +288,7 @@ export default function Home() {
 
     const update = () => {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => requestAnimationFrame(applyLayout), 80);
+      debounceTimer = setTimeout(() => requestAnimationFrame(applyLayout), 150);
     };
 
     requestAnimationFrame(applyLayout);
@@ -821,6 +823,10 @@ RULES: Be BRUTALLY HONEST — no false praise. Quote EXACT mistakes. Keep it und
       reader.onload = () => {
         setSelectedImage({ base64: reader.result.split(",")[1], mimeType: file.type || "image/jpeg", previewUrl: reader.result, name: file.name });
         setImageReady(true);
+      };
+      reader.onerror = () => {
+        toast.error("Could not read image. Please make sure it's saved locally on your device (not in iCloud or Google Photos).");
+        if (imageInputRef.current) imageInputRef.current.value = "";
       };
       reader.readAsDataURL(file);
     } catch (e) { console.error("❌ [IMAGE SELECT]", e); }

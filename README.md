@@ -15,11 +15,28 @@ Buddy AI ist eine interaktive, hochgradig optimierte Lernplattform, die Next.js,
 
 ---
 
+## 💡 Die Lücke, die Buddy AI schließt
+
+Zwei der mächtigsten KI-Tools für Lernende haben bisher eine entscheidende Einschränkung:
+
+| Tool | Stärke | Einschränkung |
+|------|--------|---------------|
+| **Gemini Live** | Echtzeit-Gespräch & Sprachinteraktion | Keine Datei-Analyse möglich |
+| **NotebookLM** | Tiefe Dokument-Analyse & Zusammenfassungen | Kein Live-Gespräch möglich |
+
+**Buddy AI vereint beide Welten:** Lade dein Schulbuch, deine Notizen oder ein Bild hoch — und unterhalte dich dann in Echtzeit per Sprache mit einem KI-Lehrer, der den Inhalt vollständig versteht. ✅
+
+---
+
 ## 🌟 Hauptmerkmale & Einzigartige Funktionen
 
 ### 📱 1. Natives App-Erlebnis & Vollständige Immersion
 * **Responsive Design:** Das Layout ist so optimiert, dass es sich auf mobilen Geräten wie eine echte native App anfühlt (inklusive Landscape-Mode Anpassungen).
-* **Vollständige Immersion:** Der Nutzer wählt seine Muttersprache und seine Zielsprache. Um das Eintauchen in die neue Sprache zu maximieren, passt sich die **gesamte Benutzeroberfläche** (UI) automatisch der Zielsprache an. Unterstützte Sprachen: Englisch, Deutsch, Arabisch, Französisch, Spanisch, Italienisch, Portugiesisch, Türkisch, Polnisch, Russisch, Japanisch, Chinesisch und mehr.
+* **Vollständige Immersion:** Der Nutzer wählt seine Muttersprache und seine Zielsprache. Um das Eintauchen in die neue Sprache zu maximieren, passt sich die **gesamte Benutzeroberfläche** (UI) — inklusive aller Buttons, Menüs, Meldungen und Beschriftungen — automatisch der Zielsprache an. So lernt der Schüler nicht nur durch Gespräche, sondern ist von der ersten Sekunde an vollständig von der neuen Sprache umgeben.
+
+**Unterstützte Sprachen (20):**
+
+Englisch, Deutsch, Arabisch, Spanisch, Französisch, Italienisch, Chinesisch, Hindi, Bengalisch, Portugiesisch, Russisch, Urdu, Indonesisch, Japanisch, Türkisch, Koreanisch, Vietnamesisch, Niederländisch, Persisch, Polnisch
 
 ### 🧠 2. Kontextbezogene Intelligenz & Auto-Karteikarten
 * Der KI-Lehrer analysiert den Kontext des Gesprächs in Echtzeit.
@@ -57,7 +74,7 @@ Jeder Modus ist auch mit 3 Immersionsstufen kombinierbar:
 
 ### 🔒 5. Sicherheit & Datenschutz (Zero-Knowledge Architecture)
 Dieses Projekt wurde nach dem **"Bring Your Own Key" (BYOK)** Prinzip entwickelt.
-* **Keine Speicherung auf Servern:** Der eingegebene Gemini API-Schlüssel wird ausschließlich lokal im `sessionStorage` des Computers gespeichert. Beim Schließen des Browsers wird er spurlos gelöscht.
+* **Keine Speicherung auf Servern:** Der eingegebene Gemini API-Schlüssel wird ausschließlich lokal im `sessionStorage` des Computers gespeichert. Beim Schließen des Browsers **oder des Tabs** wird er spurlos gelöscht — im Gegensatz zu `localStorage`, der dauerhaft gespeichert bleibt.
 * **Direkte Kommunikation:** Alle Daten (Sprache, OCR, Chat) fließen direkt vom Browser zu den Google-Servern. Der Entwickler hat absolut keinen Zugriff auf die API-Schlüssel oder Chat-Inhalte der Nutzer. Der API-Schlüssel verlässt niemals Ihren Browser — er wird direkt an Google gesendet, ohne den Entwickler-Server zu berühren.
 * **Sichere Firebase-Anmeldung:** Authentifizierung via Google Login (OAuth), wobei Firebase lediglich zur Speicherung der Vokabeln genutzt wird.
 

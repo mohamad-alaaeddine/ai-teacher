@@ -58,7 +58,7 @@ Jeder Modus ist auch mit 3 Immersionsstufen kombinierbar:
 ### 🔒 5. Sicherheit & Datenschutz (Zero-Knowledge Architecture)
 Dieses Projekt wurde nach dem **"Bring Your Own Key" (BYOK)** Prinzip entwickelt.
 * **Keine Speicherung auf Servern:** Der eingegebene Gemini API-Schlüssel wird ausschließlich lokal im `sessionStorage` des Computers gespeichert. Beim Schließen des Browsers wird er spurlos gelöscht.
-* **Direkte Kommunikation:** Alle Daten (Sprache, OCR, Chat) fließen direkt vom Browser zu den Google-Servern. Der Entwickler hat absolut keinen Zugriff auf die API-Schlüssel oder Chat-Inhalte der Nutzer.
+* **Direkte Kommunikation:** Alle Daten (Sprache, OCR, Chat) fließen direkt vom Browser zu den Google-Servern. Der Entwickler hat absolut keinen Zugriff auf die API-Schlüssel oder Chat-Inhalte der Nutzer. Der API-Schlüssel verlässt niemals Ihren Browser — er wird direkt an Google gesendet, ohne den Entwickler-Server zu berühren.
 * **Sichere Firebase-Anmeldung:** Authentifizierung via Google Login (OAuth), wobei Firebase lediglich zur Speicherung der Vokabeln genutzt wird.
 
 ---

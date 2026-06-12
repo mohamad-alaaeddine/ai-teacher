@@ -6,29 +6,54 @@ Buddy AI ist eine interaktive, hochgradig optimierte Lernplattform, die Next.js,
 
 ---
 
+## 📸 Screenshots
+
+| Setup Screen | Classroom |
+|:---:|:---:|
+| ![Setup Screen](https://raw.githubusercontent.com/mohamad-alaaeddine/ai-teacher/main/public/screenshots/Setup.png) | ![Classroom](https://raw.githubusercontent.com/mohamad-alaaeddine/ai-teacher/main/public/screenshots/Class%20Room.png) |
+| API Key, Sprache, Modus & Datei-Upload | Live Voice Chat, Token-Zähler & Bild-Panel |
+
+---
+
 ## 🌟 Hauptmerkmale & Einzigartige Funktionen
 
 ### 📱 1. Natives App-Erlebnis & Vollständige Immersion
 * **Responsive Design:** Das Layout ist so optimiert, dass es sich auf mobilen Geräten wie eine echte native App anfühlt (inklusive Landscape-Mode Anpassungen).
-* **Vollständige Immersion:** Der Nutzer wählt seine Muttersprache und seine Zielsprache. Um das Eintauchen in die neue Sprache zu maximieren, passt sich die **gesamte Benutzeroberfläche** (UI) automatisch der Zielsprache an.
+* **Vollständige Immersion:** Der Nutzer wählt seine Muttersprache und seine Zielsprache. Um das Eintauchen in die neue Sprache zu maximieren, passt sich die **gesamte Benutzeroberfläche** (UI) automatisch der Zielsprache an. Unterstützte Sprachen: Englisch, Deutsch, Arabisch, Französisch, Spanisch, Italienisch, Portugiesisch, Türkisch, Polnisch, Russisch, Japanisch, Chinesisch und mehr.
 
 ### 🧠 2. Kontextbezogene Intelligenz & Auto-Karteikarten
 * Der KI-Lehrer analysiert den Kontext des Gesprächs in Echtzeit.
 * Wenn die KI bemerkt, dass der Schüler ein Wort nicht kennt, falsch verwendet oder aktiv nach der Bedeutung fragt, wird dieses Wort **automatisch** als Vokabelkarte (Flashcard) mit der Übersetzung in die Muttersprache in der Firebase-Datenbank (Firestore) gespeichert.
-* Schüler können über den "Flashcards"-Button jederzeit auf ihre gesammelten Vokabeln zugreifen und diese verwalten.
+* Schüler können über den "Flashcards"-Button jederzeit auf ihre gesammelten Vokabeln zugreifen, bearbeiten und löschen.
 
 ### 🏫 3. Der interaktive Klassenraum (Classroom)
 Der Classroom bietet maximale Flexibilität für jeden Lernstil:
-* **Live Voice Mode:** Ein flüssiger, latenzfreier Echtzeit-Sprachchat (Bidi-WebSockets) direkt mit der KI.
+* **Live Voice Mode:** Ein flüssiger, latenzfreier Echtzeit-Sprachchat (Bidi-WebSockets) direkt mit der KI — inklusive automatischem Reconnect bei Verbindungsabbruch.
 * **Voice-to-Text (Mic):** Wer keine Lust zum Tippen hat, kann seine Stimme nutzen, die sofort in Text umgewandelt und in den Chat eingefügt wird.
 * **Spontaner Bild-Upload:** Unabhängig von den Lernmaterialien im Setup, können Schüler direkt im Chat eine neue Umgebung abfotografieren oder ein Bild hochladen, um sofort mit der KI darüber zu diskutieren.
 * **Live-Token-Zähler:** Transparente Anzeige des API-Token-Verbrauchs am oberen Bildschirmrand.
 * **Session-Report:** Mit einem Klick auf "Report" generiert die KI einen detaillierten, ehrlichen Bericht über die aktuelle Lektion, die Fehler und den Fortschritt.
 
-### 📚 4. 10 Spezialisierte Lernmodi (inkl. Vokabel-Tester)
-Die Plattform bietet 10 verschiedene Modi, die das Lernen revolutionieren. Ein besonderes Highlight:
-* **Vocabulary Driller (Der Eltern-Ersatz):** Nie wieder müssen Eltern Vokabeln abfragen! Schüler fotografieren einfach die Vokabelseite aus ihrem Schulbuch, laden das Bild hoch (via OCR verarbeitet), und die KI fragt die Vokabeln systematisch ab, korrigiert die Aussprache und testet das Wissen.
-* **Weitere Modi:** *Grammar Tutor* (Fehlerkorrektur), *Role-Play* (Alltagssituationen simulieren), *Debate Room* (Diskussionen auf hohem Niveau), *Exam Prep* (IELTS/TOEFL Vorbereitung), *Story Co-creation*, *Free Practice* und mehr.
+### 📚 4. 10 Spezialisierte Lernmodi
+
+Die Plattform bietet **10 verschiedene Modi**, aufgeteilt in 4 Kategorien:
+
+| Kategorie | Modi |
+|-----------|------|
+| ⚙️ General | Open Tutor |
+| 📚 Foundation | Vocabulary Driller, Grammar Tutor, Reading & Translation |
+| 🎭 Simulation | Role-Play, Debate Room, Story Co-creation |
+| 🎓 Specialized | Image Discussion, Exam Prep, Free Practice |
+
+Ein besonderes Highlight:
+* **Vocabulary Driller (Der Eltern-Ersatz):** Nie wieder müssen Eltern Vokabeln abfragen! Schüler fotografieren einfach die Vokabelseite aus ihrem Schulbuch, laden das Bild hoch (via OCR verarbeitet), und die KI fragt die Vokabeln systematisch ab — mit intelligentem Wiederholungssystem (Wörter die 3× richtig beantwortet werden, gelten als "gemeistert").
+* **Free Practice:** Schüler sprechen oder schreiben frei ohne Unterbrechung — am Ende gibt die KI einen strukturierten, ehrlichen Feedback-Report.
+* **Exam Prep:** Vorbereitung auf IELTS, TOEFL, Goethe-Zertifikat, DELF und andere Prüfungen mit realistischen Übungsaufgaben.
+
+Jeder Modus ist auch mit 3 Immersionsstufen kombinierbar:
+* **Beginner** (80% Muttersprache)
+* **Balanced** (50% / 50%)
+* **Immersion** (80% Zielsprache)
 
 ### 🔒 5. Sicherheit & Datenschutz (Zero-Knowledge Architecture)
 Dieses Projekt wurde nach dem **"Bring Your Own Key" (BYOK)** Prinzip entwickelt.
@@ -40,17 +65,17 @@ Dieses Projekt wurde nach dem **"Bring Your Own Key" (BYOK)** Prinzip entwickelt
 
 ## 🛠️ Technologie-Stack
 
-* **Frontend:** Next.js (App Router), Tailwind CSS, Framer Motion
-* **Audio & Streaming:** Web Audio API, Gemini Live Client (WebSockets via `gemini-3.1-flash-live-preview`)
-* **OCR & Dateiverarbeitung:** Gemini REST API (`gemini-2.5-flash-lite`), Google AI File Manager (Resumable Uploads)
-* **Backend & Auth:** Firebase Auth, Cloud Firestore
-* **Hosting:** Vercel
+| Bereich | Technologie |
+|---------|-------------|
+| **Frontend** | Next.js (App Router), Tailwind CSS |
+| **Live Voice** | Gemini Live API (`gemini-3.1-flash-live-preview`) via BidiGenerateContent WebSockets |
+| **OCR & Analyse** | Gemini REST API (`gemini-2.5-flash-lite`), Google AI File Manager (Resumable Uploads) |
+| **Auth & Datenbank** | Firebase Auth (Google OAuth), Cloud Firestore |
+| **Hosting** | Vercel |
 
 ---
 
 ## 💻 Lokale Installation & Einrichtung
-
-Befolgen Sie diese Schritte, um das Projekt auf Ihrem lokalen Rechner auszuführen:
 
 ### 1. Repository klonen
 ```bash
@@ -64,7 +89,7 @@ npm install
 ```
 
 ### 3. Umgebungsvariablen einrichten (Firebase)
-Erstellen Sie eine `.env.local` Datei im Hauptverzeichnis des Projekts und fügen Sie Ihre öffentlichen Firebase-Anmeldedaten hinzu:
+Erstellen Sie eine `.env.local` Datei im Hauptverzeichnis und fügen Sie Ihre Firebase-Anmeldedaten hinzu (eine `.env.example` Datei liegt im Repository als Vorlage bereit):
 
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=ihr_firebase_api_key
@@ -76,21 +101,26 @@ NEXT_PUBLIC_FIREBASE_APP_ID=ihre_app_id
 ```
 
 ### 🔑 4. Woher bekomme ich den Gemini API-Schlüssel? (Kostenlos)
-Um die App zu nutzen, benötigen Sie einen Gemini API-Schlüssel von Google. 
+Um die App zu nutzen, benötigen Sie einen Gemini API-Schlüssel von Google.
 Das Beste daran: **Die Nutzung ist aktuell im "Free Tier" (kostenlose Stufe) von Google völlig kostenlos!**
 
 So erhalten Sie den Schlüssel in unter 1 Minute:
 1. Besuchen Sie [Google AI Studio](https://aistudio.google.com/app/apikey).
 2. Melden Sie sich mit Ihrem normalen Google-Konto an.
-3. Klicken Sie auf **"Create API key"** (API-Schlüssel erstellen).
-4. Kopieren Sie den Schlüssel. (Sie tragen ihn später direkt auf der Startseite der App ein – er muss **nicht** in die `.env` Datei!).
+3. Klicken Sie auf **"Create API key"**.
+4. Kopieren Sie den Schlüssel. (Sie tragen ihn direkt auf der Startseite der App ein — er muss **nicht** in die `.env` Datei!).
 
 ### 5. Lokalen Server starten
 ```bash
 npm run dev
 ```
 
-Öffnen Sie nun [http://localhost:3000](http://localhost:3000) in Ihrem Browser, melden Sie sich an, fügen Sie Ihren kostenlosen API-Schlüssel ein und starten Sie Ihre erste Lektion!
-```
+Öffnen Sie [http://localhost:3000](http://localhost:3000), melden Sie sich an, fügen Sie Ihren API-Schlüssel ein und starten Sie Ihre erste Lektion!
 
 ---
+
+## ⚠️ Bekannte Einschränkungen
+
+* Die Gemini Live API (`gemini-3.1-flash-live-preview`) ist ein Preview-Modell — gelegentliche Verbindungsabbrüche sind möglich. Die App reconnectet automatisch.
+* Der Free Tier von Google AI hat Rate Limits — bei intensiver Nutzung kann es zu kurzen Verzögerungen kommen.
+* Datei-Uploads werden nach der OCR-Analyse von Google's File Manager automatisch nach 48 Stunden gelöscht.

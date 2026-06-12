@@ -63,7 +63,7 @@ Die Plattform bietet **10 verschiedene Modi**, aufgeteilt in 4 Kategorien:
 | 🎓 Specialized | Image Discussion, Exam Prep, Free Practice |
 
 Ein besonderes Highlight:
-* **Vocabulary Driller (Der Eltern-Ersatz):** Nie wieder müssen Eltern Vokabeln abfragen! Schüler fotografieren einfach die Vokabelseite aus ihrem Schulbuch, laden das Bild hoch (via OCR verarbeitet), und die KI fragt die Vokabeln systematisch ab — mit intelligentem Wiederholungssystem (Wörter die 3× richtig beantwortet werden, gelten als "gemeistert").
+* **Vocabulary Driller (Der Eltern-Ersatz):** Nie wieder müssen Eltern Vokabeln abfragen! Schüler fotografieren einfach die Vokabelseite aus ihrem Schulbuch, laden das Bild hoch (via OCR verarbeitet), und die KI fragt die Vokabeln systematisch ab. Das eingebaute **3×-Meisterschaftssystem** markiert ein Wort erst dann als "gemeistert" ✅, wenn es dreimal hintereinander richtig beantwortet wurde — für nachhaltiges Lernen statt oberflächlichem Auswendiglernen.
 * **Free Practice:** Schüler sprechen oder schreiben frei ohne Unterbrechung — am Ende gibt die KI einen strukturierten, ehrlichen Feedback-Report.
 * **Exam Prep:** Vorbereitung auf IELTS, TOEFL, Goethe-Zertifikat, DELF und andere Prüfungen mit realistischen Übungsaufgaben.
 
@@ -75,7 +75,7 @@ Jeder Modus ist auch mit 3 Immersionsstufen kombinierbar:
 ### 🔒 5. Sicherheit & Datenschutz (Zero-Knowledge Architecture)
 Dieses Projekt wurde nach dem **"Bring Your Own Key" (BYOK)** Prinzip entwickelt.
 * **Keine Speicherung auf Servern:** Der eingegebene Gemini API-Schlüssel wird ausschließlich lokal im `sessionStorage` des Computers gespeichert. Beim Schließen des Browsers **oder des Tabs** wird er spurlos gelöscht — im Gegensatz zu `localStorage`, der dauerhaft gespeichert bleibt.
-* **Direkte Kommunikation:** Alle Daten (Sprache, OCR, Chat) fließen direkt vom Browser zu den Google-Servern. Der Entwickler hat absolut keinen Zugriff auf die API-Schlüssel oder Chat-Inhalte der Nutzer. Der API-Schlüssel verlässt niemals Ihren Browser — er wird direkt an Google gesendet, ohne den Entwickler-Server zu berühren.
+* **Direkte Kommunikation:** Alle Daten (Sprache, OCR, Chat) fließen direkt vom Browser zu den Google-Servern. Der Entwickler hat absolut keinen Zugriff auf die API-Schlüssel oder Chat-Inhalte der Nutzer. Der API-Schlüssel verlässt niemals Ihren Browser — er wird direkt an Google gesendet, ohne den Entwickler-Server zu berühren. Auch Datei-Uploads (OCR) werden direkt vom Browser zu Google hochgeladen — kein Umweg über den Server des Entwicklers.
 * **Sichere Firebase-Anmeldung:** Authentifizierung via Google Login (OAuth), wobei Firebase lediglich zur Speicherung der Vokabeln genutzt wird.
 
 ---
